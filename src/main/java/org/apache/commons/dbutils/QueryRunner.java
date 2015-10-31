@@ -33,7 +33,7 @@ import javax.sql.DataSource;
  * @see ResultSetHandler
  */
 public class QueryRunner extends AbstractQueryRunner {
-
+	public static String DriverName="";
     /**
      * Constructor for QueryRunner.
      */
