@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Implementation-Title: Apache Commons DbUtils
+Implementation-Version: 1.7-SNAPSHOT
+Built-By: Administrator
+Specification-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Specification-Title: Apache Commons DbUtils
+Implementation-Vendor: The Apache Software Foundation
+X-Compile-Target-JDK: 1.6
+Implementation-Build: ${scmBranch}@r${buildNumber}; 2015-10-31 15:33:4
+ 4+0000
+X-Compile-Source-JDK: 1.6
+Build-Jdk: 1.8.0_60
+Created-By: Maven Integration for Eclipse
+Specification-Version: 1.7-SNAPSHOT
+

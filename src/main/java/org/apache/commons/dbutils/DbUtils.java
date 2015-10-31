@@ -34,6 +34,7 @@ import java.util.Properties;
 
 /**
  * A collection of JDBC helper methods.  This class is thread safe.
+ * 
  */
 public final class DbUtils {
 
