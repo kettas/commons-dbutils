@@ -1,9 +1,11 @@
-package org.apache.commons.dbutils;
+package org.apache.commons.kettas;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.dbutils.DbUtils;
 
 /**
  * 数据库版本控制类
@@ -17,6 +19,10 @@ public class SQLVersion {
 		if(dbInfo==null){
 			Map map=new HashMap();
 			try{
+				boolean type=connection.isReadOnly();
+				if(type){
+					connection.setReadOnly(false);
+				}
 				DatabaseMetaData metaData = connection.getMetaData();
 				map.put("databaseName", metaData.getDatabaseProductName());
 				map.put("VersionName", metaData.getDatabaseProductVersion());
@@ -25,6 +31,7 @@ public class SQLVersion {
 				map.put("userName",metaData.getUserName());
 				map.put("url", metaData.getURL());
 				map.put("maxConnection", metaData.getMaxConnections());
+				connection.setReadOnly(type);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
