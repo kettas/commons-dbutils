@@ -56,6 +56,7 @@ import org.apache.commons.kettas.NoClobRowProcessor;
  * 
  */
 public final class DbUtils {
+	private static String propertiesFile="jdbc.properties";
 	private static DataSource ds = null;//默认连接池
 	private Connection connection = null;
 	// ***********静态变量
@@ -731,9 +732,9 @@ public final class DbUtils {
      * @throws Exception 
      */
     public static DataSource getDataSource() {
-		Properties properties=new Properties();
+    	Properties properties=new Properties();
 		try{
-			properties.load(DbUtils.class.getClassLoader().getResourceAsStream("jdbc.properties"));
+			properties.load(DbUtils.class.getClassLoader().getResourceAsStream(propertiesFile));
 			if(properties.containsKey("jndl")){
 				return getDataSource(properties.getProperty("jndl"));
 			}else{
@@ -744,7 +745,7 @@ public final class DbUtils {
 			return null;
 		}
     }
-    /**
+	/**
      * 获得中间件连接池
      * @param name
      * @return DataSource
@@ -986,5 +987,12 @@ public final class DbUtils {
         }
 
     }
+
+	public static String getPropertiesFile() {
+		return propertiesFile;
+	}
+	public static void setPropertiesFile(String propertiesFile) {
+		DbUtils.propertiesFile = propertiesFile;
+	}
 
 }
