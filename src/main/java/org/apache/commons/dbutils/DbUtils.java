@@ -375,6 +375,18 @@ public final class DbUtils {
 		}
 		return result;
 	}
+	public Object[] queryToArray(String sql, Object[] params,int max) throws Exception {
+		return queryToArray(sql, params, 0, max);
+	}
+	public Object[] queryToArray(String sql, Object[] params,int start,int end) throws Exception {
+		Connection conn = this.getQueryConnection();
+		ResultSetHandler h = new ArrayHandler(getRowProcessor());
+		try {
+			return (Object[])run.limit(connection, sql, params, h, start, end);
+		} finally {
+			close(conn);
+		}
+	}
 	/**
 	 * Execute an SQL SELECT query without any replacement parameters and
 	 * converts the first ResultSet into a Map object. Usage Demo:
@@ -564,6 +576,12 @@ public final class DbUtils {
 		ResultSetHandler h = new MapListHandler(getRowProcessor());
 		return run.pagin(getQueryConnection(), countSql, queryAllSql, null,h,getRowProcessor(), pageNum, maxRow);
 	}
+	public void refresh(){
+		close();
+		ds=null;
+		CloseConnection = true;
+		CONNCETION_DATASOURCE=true;
+	}
 	/**
 	 * 强行关闭本身尚未关闭的数据库连接
      */
@@ -735,11 +753,7 @@ public final class DbUtils {
     	Properties properties=new Properties();
 		try{
 			properties.load(DbUtils.class.getClassLoader().getResourceAsStream(propertiesFile));
-			if(properties.containsKey("jndl")){
-				return getDataSource(properties.getProperty("jndl"));
-			}else{
-				return BasicDataSourceFactory.createDataSource(properties);
-			}
+			return getDataSource(properties);
 		}catch(Exception x){
 			x.printStackTrace();
 			return null;
@@ -753,6 +767,13 @@ public final class DbUtils {
      */
 	public static DataSource getDataSource(String name)throws Exception{
 		return (DataSource) new InitialContext().lookup(name);
+	}
+	public static DataSource getDataSource(Properties properties)throws Exception{
+		if(properties.containsKey("jndl")){
+			return getDataSource(properties.getProperty("jndl"));
+		}else{
+			return BasicDataSourceFactory.createDataSource(properties);
+		}
 	}
     /**
      * Loads and registers a database driver class.
