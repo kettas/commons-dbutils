@@ -41,6 +41,15 @@ public class Pagin<T> {
 		this.nextPage=this.currentPage<this.totalPages;
 		this.previousPage=pageNumber>1;
 	}
+	public Pagin(int pageNumber,int totalRows,int pageMaxRow){
+		this.rows=new ArrayList(0);
+		this.totalRows=totalRows;
+		this.currentPage=pageNumber<1?1:pageNumber;
+		this.pageMaxRows=pageMaxRow<0?0:pageMaxRow;
+		this.totalPages=(int)Math.ceil(Double.valueOf(this.totalRows)/this.pageMaxRows);
+		this.nextPage=this.currentPage<this.totalPages;
+		this.previousPage=pageNumber>1;
+	}
 	/**
 	 * 页码构造方法
 	 * @param pageNumber 当前页码 

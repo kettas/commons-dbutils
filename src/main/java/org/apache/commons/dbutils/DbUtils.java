@@ -207,6 +207,16 @@ public final class DbUtils {
 			close();
 		}
 	}
+	public void executeUpdate(String ...sql) throws SQLException {
+		try {
+			connection = getConnection();
+			for(String sqltmp:sql){
+				run.update(connection, sqltmp);
+			}
+		} finally {
+			close();
+		}
+	}
 	/**
 	 * 批量执行INSERT,UPDATE,或者DELETE方面的SQL语句
 	 * @param sql 需要执行的SQL
