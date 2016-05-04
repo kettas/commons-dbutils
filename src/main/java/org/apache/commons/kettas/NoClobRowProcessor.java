@@ -35,6 +35,10 @@ public class NoClobRowProcessor implements RowProcessor {
      */
     private static final BasicRowProcessor instance = new BasicRowProcessor();
     private int keyNameType=0;//返回的字段名类型:[0自动|1小定|2大写]
+    /**
+     * 返回的字段名类型:[0自动|1小定|2大写]
+     * @param keyNameType
+     */
     public void setKeyNameType(int keyNameType) {
 		this.keyNameType = keyNameType;
 	}

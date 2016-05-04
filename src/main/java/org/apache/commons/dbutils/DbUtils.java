@@ -32,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -63,7 +64,7 @@ public final class DbUtils {
 	private boolean CloseConnection = true;
 	private static boolean CONNCETION_DATASOURCE=true;
 	private static JDBCPaginRunner run = new JDBCPaginRunner();// 分页扩展类
-	public RowProcessor rowProcessor=null;
+	public NoClobRowProcessor rowProcessor=null;
 	
     /**
      * Default constructor.
@@ -397,6 +398,219 @@ public final class DbUtils {
 			close(conn);
 		}
 	}
+	/**
+	 * 执行不带任何参数的SQL SELECT查询并将第一条记录反射到指定的bean 
+	 * 使用方法:
+	 * 
+	 * <pre>
+	 * String sql = &quot;SELECT * FROM test&quot;;
+	 * Test test = (Test) queryToBean(Test.class, sql);
+	 * if (test != null) {
+	 * 	System.out.println(&quot;test:&quot; + test.getPropertyName());
+	 * }
+	 * sql = &quot;SELECT id FROM test&quot;;
+	 * String ID = (String) queryToBean(String.class, sql);
+	 * if (test != null) {
+	 * 	System.out.println(&quot;test:&quot; + ID);
+	 * }
+	 * </pre>
+	 * @param type
+	 *            The Class of beans.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @return An initialized JavaBean or null if there were no rows in the
+	 *         ResultSet.
+	 */
+	@SuppressWarnings("unchecked")
+	public Object queryToBean(Class type, String sql) throws SQLException {
+		ResultSetHandler h = getResultBeanHandler(type);
+		try {
+			connection = this.getQueryConnection();
+			return run.query(connection, sql,h);
+		} finally {
+			close();
+		}
+
+	}
+	/**
+	 * Executes the given SELECT SQL with a single replacement parameter and
+	 * Convert the first row of the ResultSet into a bean with the Class given
+	 * in the parameter.
+	 * 
+	 * @param type
+	 *            The Class of beans.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @param param
+	 *            The replacement parameter.
+	 * @return An initialized JavaBean or null if there were no rows in the
+	 *         ResultSet.
+	 */
+	@SuppressWarnings({"unchecked", "deprecation"})
+	public Object queryToBean(Class type, String sql, Object param)
+			throws SQLException {
+		ResultSetHandler h = getResultBeanHandler(type);
+		try {
+			connection = this.getQueryConnection();
+			return run.query(connection, sql,h,param);
+		} finally {
+			close();
+		}
+	}
+
+	/**
+	 * Executes the given SELECT SQL query and Convert the first row of the
+	 * ResultSet into a bean with the Class given in the parameter.
+	 * 
+	 * @param type
+	 *            The Class of beans.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @param params
+	 *            Initialize the PreparedStatement's IN parameters with this
+	 *            array.
+	 * @return An initialized JavaBean or null if there were no rows in the
+	 *         ResultSet.
+	 */
+	@SuppressWarnings({"unchecked", "deprecation"})
+	public Object queryToBean(Class type, String sql, Object[] params)
+			throws SQLException {
+		ResultSetHandler h = getResultBeanHandler(type);
+		try {
+			connection = this.getQueryConnection();
+			return run.query(connection, sql, params,h);
+		} finally {
+			close();
+		}
+	}
+
+	/**
+	 * Execute an SQL SELECT query without any replacement parameters and
+	 * Convert the ResultSet rows into a List of beans with the Class given in
+	 * the parameter. Usage Demo:
+	 * 
+	 * <pre>
+	 * ArrayList result = queryToBeanList(Test.class, sql);
+	 * Iterator iterator = result.iterator();
+	 * while (iterator.hasNext()) {
+	 * 	Test test = (Test) iterator.next();
+	 * 	System.out.println(test.getPropertyName());
+	 * }
+	 * sql = &quot;SELECT id FROM test&quot;;
+	 * String ID = (String) queryToBean(String.class, sql);
+	 * if (test != null) {
+	 * 	System.out.println(&quot;test:&quot; + ID);
+	 * }
+	 * </pre>
+	 * 
+	 * @param type
+	 *            The Class that objects returned from handle() are created
+	 *            from.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @return A List of beans (one for each row), never null.
+	 */
+	@SuppressWarnings({"unchecked", "deprecation"})
+	public ArrayList queryToBeanList(Class type, String sql)
+			throws SQLException {
+		ResultSetHandler h = getResultBeanListHandler(type);
+		try {
+			connection = this.getQueryConnection();
+			return (ArrayList) run.query(connection, sql,h);
+		} finally {
+			close();
+		}
+	}
+
+	/**
+	 * Executes the given SELECT SQL with a single replacement parameter and
+	 * Convert the ResultSet rows into a List of beans with the Class given in
+	 * the parameter.
+	 * 
+	 * @param type
+	 *            The Class that objects returned from handle() are created
+	 *            from.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @param param
+	 *            The replacement parameter.
+	 * @return A List of beans (one for each row), never null.
+	 */
+	@SuppressWarnings({"unchecked", "deprecation"})
+	public ArrayList queryToBeanList(Class type, String sql, Object param)
+			throws SQLException {
+		return (ArrayList) queryToBeanList(type, sql, new Object[]{param});
+	}
+
+	/**
+	 * Executes the given SELECT SQL query and Convert the ResultSet rows into a
+	 * List of beans with the Class given in the parameter.
+	 * 
+	 * @param type
+	 *            The Class that objects returned from handle() are created
+	 *            from.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @param params
+	 *            Initialize the PreparedStatement's IN parameters with this
+	 *            array.
+	 * @return A List of beans (one for each row), never null.
+	 */
+	@SuppressWarnings({"unchecked", "deprecation"})
+	public ArrayList queryToBeanList(Class type, String sql, Object[] params)
+			throws SQLException {
+		ResultSetHandler h = getResultBeanListHandler(type);
+		try {
+			connection = this.getQueryConnection();
+			return (ArrayList) run.query(connection, sql,h,params);
+		} finally {
+			close();
+		}
+	}
+	/**
+	 * Executes the given SELECT SQL query and Convert the ResultSet rows into a
+	 * List of beans with the Class given in the parameter.
+	 * 
+	 * @param type
+	 *            The Class that objects returned from handle() are created
+	 *            from.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @param params
+	 *            Initialize the PreparedStatement's IN parameters with this
+	 *            array.
+	 * @return A List of beans (one for each row), never null.
+	 */
+	@SuppressWarnings("unchecked")
+	public ArrayList queryToBeanList(Class type, String sql, Object[] params,
+			int end) throws SQLException {
+		return queryToBeanList(type, sql, params, 0, end);
+	}
+	/**
+	 * Executes the given SELECT SQL query and Convert the ResultSet rows into a
+	 * List of beans with the Class given in the parameter.
+	 * 
+	 * @param type
+	 *            The Class that objects returned from handle() are created
+	 *            from.
+	 * @param sql
+	 *            The SQL to execute.
+	 * @param params
+	 *            Initialize the PreparedStatement's IN parameters with this
+	 *            array.
+	 * @return A List of beans (one for each row), never null.
+	 */
+	@SuppressWarnings("unchecked")
+	public ArrayList queryToBeanList(Class type, String sql, Object[] params,
+			int start, int end) throws SQLException {
+		ResultSetHandler h = getResultBeanListHandler(type);
+		try {
+			connection = this.getQueryConnection();
+			return (ArrayList) run.limit(connection, sql, params,h, start, end);
+		} finally {
+			close();
+		}
+	}	
 	/**
 	 * Execute an SQL SELECT query without any replacement parameters and
 	 * converts the first ResultSet into a Map object. Usage Demo:
@@ -1026,4 +1240,7 @@ public final class DbUtils {
 		DbUtils.propertiesFile = propertiesFile;
 	}
 
+	public void setColumnNameToLowerCase(){
+		rowProcessor.setKeyNameType(1);
+	}
 }

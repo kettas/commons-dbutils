@@ -39,14 +39,14 @@ public class SQLVersion {
 		}
 	}
 	/**
-	 * 支持的数据库版本枚举�?
+	 * 支持的数据库版本枚举类型
 	 * @author kettas
 	 * 3:03:29 PM
 	 */
 	public enum VersionName {
         SqlServer,Oracle,MySql,Sqlite;
     }
-	//判断数据库的采用的类�?
+	//判断数据库的采用的类型
 	public static String getVersion(javax.sql.DataSource datasource)throws SQLException{
 		java.sql.Connection con=null;
 		try{
@@ -59,7 +59,7 @@ public class SQLVersion {
 		}
 	}
 	
-	//判断数据库的采用的类�?
+	//判断数据库的采用的类型
 	public static String getVersion(java.sql.Connection connection)throws SQLException{
 		try{
 			if(dbInfo!=null){
@@ -74,7 +74,7 @@ public class SQLVersion {
 		}
 	}
 	/**
-	 * 获得数据库版�?(通过JDBC获得)
+	 * 获得数据库版本(通过JDBC获得)
 	 * @return SQLVersion.VersionName
 	 */
 	public static VersionName getVersionName(javax.sql.DataSource datasource) {
