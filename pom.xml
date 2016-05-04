@@ -24,7 +24,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>commons-dbutils</groupId>
   <artifactId>commons-dbutils</artifactId>
-  <version>1.7-SNAPSHOT</version>
   <name>Apache Commons DbUtils</name>
 
   <inceptionYear>2002</inceptionYear>
@@ -190,4 +189,5 @@
     </profile>
   </profiles>
 
+  <version>3.0</version>
 </project>
