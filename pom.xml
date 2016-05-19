@@ -30,16 +30,7 @@
 
   <url>http://commons.apache.org/proper/commons-dbutils/</url>
 
-  <issueManagement>
-    <system>jira</system>
-    <url>http://issues.apache.org/jira/browse/DBUTILS</url>
-  </issueManagement>
 
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/commons/proper/dbutils/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/commons/proper/dbutils/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/commons/proper/dbutils/trunk</url>
-  </scm>
 
   <dependencies>
     <dependency>
@@ -55,15 +46,6 @@
     </dependency>
   </dependencies>
 
-  <distributionManagement>
-    <!-- Cannot define in parent ATM, see COMMONSSITE-26 -->
-    <site>
-      <id>apache.website</id>
-      <name>Apache Commons Site</name>
-      <url>${commons.deployment.protocol}://people.apache.org/www/commons.apache.org/${commons.componentid}</url>
-    </site>
-  </distributionManagement>
-
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
@@ -73,107 +55,5 @@
     <commons.jira.id>DBUTILS</commons.jira.id>
     <commons.jira.pid>12310470</commons.jira.pid>
   </properties> 
-
-  <!-- <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <excludes>
-              <exclude>**/BaseTestCase.java</exclude>
-            </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptors>
-            <descriptor>src/main/assembly/bin.xml</descriptor>
-            <descriptor>src/main/assembly/src.xml</descriptor>
-          </descriptors>
-          <tarLongFileMode>gnu</tarLongFileMode>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.rat</groupId>
-        <artifactId>apache-rat-plugin</artifactId>
-        <version>0.11</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build> -->
-  <!-- 
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changes-plugin</artifactId>
-        <version>${commons.changes.version}</version>
-        <configuration>
-          <xmlPath>${basedir}/src/changes/changes.xml</xmlPath>
-          <issueLinkTemplate>%URL%/%ISSUE%</issueLinkTemplate>
-        </configuration>
-        <reportSets>
-          <reportSet>
-            <reports>
-               <report>changes-report</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9.1</version>
-        <configuration>
-          <configLocation>${basedir}/checkstyle.xml</configLocation>
-          <enableRulesSummary>false</enableRulesSummary>
-          <headerLocation>${basedir}/license-header.txt</headerLocation>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.5.4</version>
-        <configuration>
-          <threshold>Normal</threshold>
-          <effort>Default</effort>
-       </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.3</version>
-        <configuration>
-          <targetJdk>${maven.compiler.source}</targetJdk>
-          <rulesets>
-            <ruleset>${basedir}/pmd-ruleset.xml</ruleset>
-          </rulesets>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting> -->
-  <profiles>
-    <profile>
-      <id>rc</id>
-      <distributionManagement>
-        <!-- Cannot define in parent ATM, see COMMONSSITE-26 -->
-        <site>
-          <id>apache.website</id>
-          <name>Apache Commons Release Candidate Staging Site</name>
-          <url>${commons.deployment.protocol}://people.apache.org/www/people.apache.org/builds/commons/${commons.componentid}/${commons.release.version}/${commons.rc.version}/site</url>
-        </site>
-      </distributionManagement>
-    </profile>
-  </profiles>
 
 </project>
