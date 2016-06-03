@@ -1116,12 +1116,6 @@ public class JDBCPaginRunner {
 				} catch (Exception x) {
 				}
 			}
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (Exception x) {
-				}
-			}
 		}
 		return new Pagin(pageNum, maxRow, maxRow, new ArrayList(0));
 	}

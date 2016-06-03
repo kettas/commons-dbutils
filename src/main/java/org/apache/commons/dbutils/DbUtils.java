@@ -390,12 +390,11 @@ public final class DbUtils {
 		return queryToArray(sql, params, 0, max);
 	}
 	public Object[] queryToArray(String sql, Object[] params,int start,int end) throws Exception {
-		Connection conn = this.getQueryConnection();
 		ResultSetHandler h = new ArrayHandler(getRowProcessor());
 		try {
-			return (Object[])run.limit(connection, sql, params, h, start, end);
+			return (Object[])run.limit(this.getQueryConnection(), sql, params, h, start, end);
 		} finally {
-			close(conn);
+			close();
 		}
 	}
 	/**
@@ -605,8 +604,7 @@ public final class DbUtils {
 			int start, int end) throws SQLException {
 		ResultSetHandler h = getResultBeanListHandler(type);
 		try {
-			connection = this.getQueryConnection();
-			return (ArrayList) run.limit(connection, sql, params,h, start, end);
+			return (ArrayList) run.limit(this.getQueryConnection(), sql, params,h, start, end);
 		} finally {
 			close();
 		}
@@ -629,7 +627,7 @@ public final class DbUtils {
 	public Map queryToMap(String sql) throws SQLException {
 		ResultSetHandler h = new MapHandler(getRowProcessor());
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return (Map) run.query(connection, sql, h);
 		} finally {
 			close();
@@ -656,7 +654,7 @@ public final class DbUtils {
 			}
 			return (Map) run.query(connection, sql, h,param);
 		} finally {
-			closeQuietly(connection);
+			close();
 		}
 	}
 	/**
@@ -751,8 +749,7 @@ public final class DbUtils {
 			int maxRow) throws SQLException {
 		try {
 			ResultSetHandler h = new MapListHandler(new NoClobRowProcessor());
-			connection = this.getQueryConnection();
-			return (List) run.limit(connection, sql, params, h, start, maxRow);
+			return (List) run.limit(this.getQueryConnection(), sql, params, h, start, maxRow);
 		} finally {
 			close();
 		}
@@ -785,7 +782,11 @@ public final class DbUtils {
 	@SuppressWarnings("unchecked")
 	public Pagin pagin(int pageNum,int maxRow,String countSql,String queryAllSql,Object...params)throws Exception{
 		ResultSetHandler h = new MapListHandler(getRowProcessor());
-		return run.pagin(getQueryConnection(), countSql, queryAllSql, params,h,getRowProcessor(), pageNum, maxRow);
+		try{
+			return run.pagin(getQueryConnection(), countSql, queryAllSql, params,h,getRowProcessor(), pageNum, maxRow);
+		}finally{
+			close();
+		}
 	}
 	/**
 	 * 不带参数的分页查询
@@ -798,7 +799,11 @@ public final class DbUtils {
 	 */
 	public Pagin pagin(int pageNum,int maxRow,String countSql,String queryAllSql)throws Exception{
 		ResultSetHandler h = new MapListHandler(getRowProcessor());
-		return run.pagin(getQueryConnection(), countSql, queryAllSql, null,h,getRowProcessor(), pageNum, maxRow);
+		try{
+			return run.pagin(getQueryConnection(), countSql, queryAllSql, null,h,getRowProcessor(), pageNum, maxRow);
+		}finally{
+			close();
+		}
 	}
 	public void refresh(){
 		close();
@@ -806,7 +811,7 @@ public final class DbUtils {
 		CONNCETION_DATASOURCE=true;
 	}
 	/**
-	 * 强行关闭本身尚未关闭的数据库连接
+	 * 如果autoCommit(默认true)为true则直接关闭,反之则需要commit后再关闭
      */
 	public void close() {
 		try{
@@ -941,6 +946,9 @@ public final class DbUtils {
             }
         }
     }
+    /**
+     * 事务提交
+     */
     public void commit(){
         if (connection != null) {
             try {
@@ -950,6 +958,10 @@ public final class DbUtils {
 			}
         }
     }
+    /**
+     * 提交事务并关闭连接
+     * @throws SQLException
+     */
     public void commitAndClose() throws SQLException {
         if (connection != null) {
             try {
@@ -972,6 +984,9 @@ public final class DbUtils {
             // quiet
         }
     }
+    /**
+     * 提交事务并关闭连接
+     */
     public void commitAndCloseQuietly() {
     	try {
     		commitAndClose();
@@ -1261,10 +1276,16 @@ public final class DbUtils {
 	public static void setPropertiesFile(String propertiesFile) {
 		DbUtils.propertiesFile = propertiesFile;
 	}
-
+	/**
+	 * ResultSet 取出列名转换为小写
+	 */
 	public void setColumnNameToLowerCase(){
 		rowProcessor.setKeyNameType(1);
 	}
+	/**
+	 * 注意：不会自动关闭Connection,使用完毕请自行关闭
+	 * @param autoCommit
+	 */
 	public void setAutoCommit(boolean autoCommit) {
 		this.autoCommit = autoCommit;
 	}
