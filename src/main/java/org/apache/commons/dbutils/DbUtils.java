@@ -61,7 +61,7 @@ public final class DbUtils {
 	private static DataSource ds = null;//默认连接池
 	private Connection connection = null;
 	// ***********静态变量
-	private boolean CloseConnection = true;
+	private boolean autoCommit = true;//自动提交
 	private static boolean CONNCETION_DATASOURCE=true;
 	private static JDBCPaginRunner run = new JDBCPaginRunner();// 分页扩展类
 	public NoClobRowProcessor rowProcessor=null;
@@ -165,7 +165,7 @@ public final class DbUtils {
 		if(connection==null){
 			throw new SQLException("connection is null ");
 		}
-//		connection.setReadOnly(readOnly);
+		connection.setAutoCommit(autoCommit);
 		return connection;
 	}
 	/**
@@ -803,7 +803,6 @@ public final class DbUtils {
 	public void refresh(){
 		close();
 		ds=null;
-		CloseConnection = true;
 		CONNCETION_DATASOURCE=true;
 	}
 	/**
@@ -811,7 +810,7 @@ public final class DbUtils {
      */
 	public void close() {
 		try{
-			if(CloseConnection && connection != null){
+			if(connection != null && autoCommit ){
 				connection.close();
 			}
 		}catch(SQLException e){
@@ -823,7 +822,6 @@ public final class DbUtils {
 	 * @param close 是否强制关闭
 	 */
 	public void close(boolean close) {
-		CloseConnection = close;
 		close();
 	}
     /**
@@ -943,7 +941,24 @@ public final class DbUtils {
             }
         }
     }
-
+    public void commit(){
+        if (connection != null) {
+            try {
+				connection.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        }
+    }
+    public void commitAndClose() throws SQLException {
+        if (connection != null) {
+            try {
+            	connection.commit();
+            } finally {
+            	connection.close();
+            }
+        }
+    }
     /**
      * Commits a <code>Connection</code> then closes it, avoid closing if null
      * and hide any SQLExceptions that occur.
@@ -956,6 +971,13 @@ public final class DbUtils {
         } catch (SQLException e) { // NOPMD
             // quiet
         }
+    }
+    public void commitAndCloseQuietly() {
+    	try {
+    		commitAndClose();
+    	} catch (SQLException e) { // NOPMD
+    		// quiet
+    	}
     }
 
     /**
@@ -1242,5 +1264,8 @@ public final class DbUtils {
 
 	public void setColumnNameToLowerCase(){
 		rowProcessor.setKeyNameType(1);
+	}
+	public void setAutoCommit(boolean autoCommit) {
+		this.autoCommit = autoCommit;
 	}
 }
