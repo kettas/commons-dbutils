@@ -62,6 +62,7 @@ public final class DbUtils {
 	private Connection connection = null;
 	// ***********静态变量
 	private boolean autoCommit = true;//自动提交
+	private boolean autoClose  = true;//自动关闭Con
 	private static boolean CONNCETION_DATASOURCE=true;
 	private static JDBCPaginRunner run = new JDBCPaginRunner();// 分页扩展类
 	public NoClobRowProcessor rowProcessor=null;
@@ -160,7 +161,7 @@ public final class DbUtils {
 		}
 		if(CONNCETION_DATASOURCE
 				&& (this.connection == null || connection.isClosed())){
-			connection = ds.getConnection();
+			ds.getConnection();
 		}
 		if(connection==null){
 			throw new SQLException("connection is null ");
@@ -187,7 +188,7 @@ public final class DbUtils {
 	public int[] batch(String sql, Object[][] params) throws SQLException {
 		int[] rows = null;
 		try {
-			connection = getConnection();
+			getConnection();
 			rows = run.batch(connection, sql, params);
 		} finally {
 			close();
@@ -202,7 +203,7 @@ public final class DbUtils {
 	 */
 	public int executeUpdate(String sql) throws SQLException {
 		try {
-			connection = getConnection();
+			getConnection();
 			return run.update(connection, sql);
 		} finally {
 			close();
@@ -210,7 +211,7 @@ public final class DbUtils {
 	}
 	public void executeUpdate(String ...sql) throws SQLException {
 		try {
-			connection = getConnection();
+			getConnection();
 			for(String sqltmp:sql){
 				run.update(connection, sqltmp);
 			}
@@ -227,7 +228,7 @@ public final class DbUtils {
 	 */
 	public int executeUpdate(String sql, Object param) throws SQLException {
 		try {
-			connection = getConnection();
+			getConnection();
 			return run.update(connection, sql, param);
 		} finally {
 			close();
@@ -242,7 +243,7 @@ public final class DbUtils {
 	 */
 	public int executeUpdate(String sql, Object[] params) throws SQLException {
 		try {
-			connection = getConnection();
+			getConnection();
 			return run.update(connection, sql, params);
 		} finally {
 			close();
@@ -268,7 +269,7 @@ public final class DbUtils {
 		java.sql.ResultSet rs=null;
 		java.sql.PreparedStatement ps=null;
 		try {
-			connection = getQueryConnection();
+			getQueryConnection();
 			ps=connection.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
 			for(int i=0;obj!=null&&i<obj.length;i++){
 				ps.setObject(i+1, obj[i]);
@@ -424,7 +425,7 @@ public final class DbUtils {
 	public Object queryToBean(Class type, String sql) throws SQLException {
 		ResultSetHandler h = getResultBeanHandler(type);
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return run.query(connection, sql,h);
 		} finally {
 			close();
@@ -450,7 +451,7 @@ public final class DbUtils {
 			throws SQLException {
 		ResultSetHandler h = getResultBeanHandler(type);
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return run.query(connection, sql,h,param);
 		} finally {
 			close();
@@ -476,7 +477,7 @@ public final class DbUtils {
 			throws SQLException {
 		ResultSetHandler h = getResultBeanHandler(type);
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return run.query(connection, sql, params,h);
 		} finally {
 			close();
@@ -514,7 +515,7 @@ public final class DbUtils {
 			throws SQLException {
 		ResultSetHandler h = getResultBeanListHandler(type);
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return (ArrayList) run.query(connection, sql,h);
 		} finally {
 			close();
@@ -560,7 +561,7 @@ public final class DbUtils {
 			throws SQLException {
 		ResultSetHandler h = getResultBeanListHandler(type);
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return (ArrayList) run.query(connection, sql,h,params);
 		} finally {
 			close();
@@ -648,7 +649,7 @@ public final class DbUtils {
 	public Map queryToMap(String sql, Object param) throws SQLException {
 		ResultSetHandler h = new MapHandler(getRowProcessor());
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			if(param!=null&&param instanceof List){
 				return (Map) run.query(connection, sql, h,new Object[]{param}, h);
 			}
@@ -674,7 +675,7 @@ public final class DbUtils {
 		Map result = null;
 		ResultSetHandler h = new MapHandler(getRowProcessor());
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			result = (Map) run.query(connection, sql, params, h);
 		} finally {
 			close();
@@ -696,7 +697,7 @@ public final class DbUtils {
 	public List queryToMapList(String sql, Object param) throws SQLException {
 		ResultSetHandler h = new MapListHandler(getRowProcessor());
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return (List) run.query(connection, sql, h,param);
 		} finally {
 			close();
@@ -705,7 +706,7 @@ public final class DbUtils {
 	public List queryToMapList(String sql) throws SQLException {
 		ResultSetHandler h = new MapListHandler(getRowProcessor());
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return (List) run.query(connection, sql, h);
 		} finally {
 			close();
@@ -724,7 +725,7 @@ public final class DbUtils {
 	public List queryToMapList(String sql, Object[] params) throws SQLException {
 		ResultSetHandler h = new MapListHandler(getRowProcessor());
 		try {
-			connection = this.getQueryConnection();
+			this.getQueryConnection();
 			return (List) run.query(connection, sql, params, h);
 		} finally {
 			close();
@@ -815,7 +816,7 @@ public final class DbUtils {
      */
 	public void close() {
 		try{
-			if(connection != null && autoCommit ){
+			if((connection != null && autoCommit) || autoClose){
 				connection.close();
 			}
 		}catch(SQLException e){
@@ -1288,5 +1289,11 @@ public final class DbUtils {
 	 */
 	public void setAutoCommit(boolean autoCommit) {
 		this.autoCommit = autoCommit;
+	}
+	public void setAutoClose(boolean autoClose) {
+		this.autoClose = autoClose;
+	}
+	public boolean isAutoClose() {
+		return autoClose;
 	}
 }
