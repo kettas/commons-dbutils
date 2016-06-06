@@ -825,7 +825,7 @@ public final class DbUtils {
 	}
 	private void closeConnection(){
 		if((connection != null && autoCommit) || autoClose){
-			closeConnection();
+			close();
 		}
 	}
     /**
