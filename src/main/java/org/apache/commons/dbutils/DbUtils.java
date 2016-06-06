@@ -191,7 +191,7 @@ public final class DbUtils {
 			getConnection();
 			rows = run.batch(connection, sql, params);
 		} finally {
-			close();
+			closeConnection();
 		}
 		return rows;
 	}
@@ -206,7 +206,7 @@ public final class DbUtils {
 			getConnection();
 			return run.update(connection, sql);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	public void executeUpdate(String ...sql) throws SQLException {
@@ -216,7 +216,7 @@ public final class DbUtils {
 				run.update(connection, sqltmp);
 			}
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -231,7 +231,7 @@ public final class DbUtils {
 			getConnection();
 			return run.update(connection, sql, param);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -246,7 +246,7 @@ public final class DbUtils {
 			getConnection();
 			return run.update(connection, sql, params);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -289,7 +289,7 @@ public final class DbUtils {
 				if(ps!=null){
 					closeQuietly(ps);
 				}
-				close();
+				closeConnection();
 			}
 		}
 	}
@@ -320,14 +320,14 @@ public final class DbUtils {
 	 */
 	@SuppressWarnings({"unchecked", "deprecation"})
 	public Object[] queryToArray(String sql) throws Exception {
-		Connection conn = this.getQueryConnection();
+		this.getQueryConnection();
 		Object[] result = null;
 
 		ResultSetHandler h = new ArrayHandler(getRowProcessor());
 		try {
-			result = (Object[]) run.query(conn, sql, h);
+			result = (Object[]) run.query(connection, sql, h);
 		} finally {
-			close(conn);
+			closeConnection();
 		}
 
 		return result;
@@ -345,14 +345,14 @@ public final class DbUtils {
 	 */
 	@SuppressWarnings({"unchecked", "deprecation"})
 	public Object[] queryToArray(String sql, Object param) throws Exception {
-		Connection conn = this.getQueryConnection();
+		this.getQueryConnection();
 		Object[] result = null;
 
 		ResultSetHandler h = new ArrayHandler(getRowProcessor());
 		try {
-			result = (Object[]) run.query(conn, sql, param, h);
+			result = (Object[]) run.query(connection, sql, param, h);
 		} finally {
-			close(conn);
+			closeConnection();
 		}
 
 		return result;
@@ -376,14 +376,14 @@ public final class DbUtils {
 	 */
 	@SuppressWarnings({"unchecked", "deprecation"})
 	public Object[] queryToArray(String sql, Object[] params) throws Exception {
-		Connection conn = this.getQueryConnection();
+		this.getQueryConnection();
 		Object[] result = null;
 
 		ResultSetHandler h = new ArrayHandler(getRowProcessor());
 		try {
-			result = (Object[]) run.query(conn, sql, params, h);
+			result = (Object[]) run.query(connection, sql, params, h);
 		} finally {
-			close(conn);
+			closeConnection();
 		}
 		return result;
 	}
@@ -395,7 +395,7 @@ public final class DbUtils {
 		try {
 			return (Object[])run.limit(this.getQueryConnection(), sql, params, h, start, end);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -428,7 +428,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return run.query(connection, sql,h);
 		} finally {
-			close();
+			closeConnection();
 		}
 
 	}
@@ -454,7 +454,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return run.query(connection, sql,h,param);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 
@@ -480,7 +480,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return run.query(connection, sql, params,h);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 
@@ -518,7 +518,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return (ArrayList) run.query(connection, sql,h);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 
@@ -564,7 +564,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return (ArrayList) run.query(connection, sql,h,params);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -607,7 +607,7 @@ public final class DbUtils {
 		try {
 			return (ArrayList) run.limit(this.getQueryConnection(), sql, params,h, start, end);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}	
 	/**
@@ -631,7 +631,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return (Map) run.query(connection, sql, h);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -655,7 +655,7 @@ public final class DbUtils {
 			}
 			return (Map) run.query(connection, sql, h,param);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -678,7 +678,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			result = (Map) run.query(connection, sql, params, h);
 		} finally {
-			close();
+			closeConnection();
 		}
 
 		return result;
@@ -700,7 +700,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return (List) run.query(connection, sql, h,param);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	public List queryToMapList(String sql) throws SQLException {
@@ -709,7 +709,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return (List) run.query(connection, sql, h);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -728,7 +728,7 @@ public final class DbUtils {
 			this.getQueryConnection();
 			return (List) run.query(connection, sql, params, h);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -752,7 +752,7 @@ public final class DbUtils {
 			ResultSetHandler h = new MapListHandler(new NoClobRowProcessor());
 			return (List) run.limit(this.getQueryConnection(), sql, params, h, start, maxRow);
 		} finally {
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -786,7 +786,7 @@ public final class DbUtils {
 		try{
 			return run.pagin(getQueryConnection(), countSql, queryAllSql, params,h,getRowProcessor(), pageNum, maxRow);
 		}finally{
-			close();
+			closeConnection();
 		}
 	}
 	/**
@@ -803,7 +803,7 @@ public final class DbUtils {
 		try{
 			return run.pagin(getQueryConnection(), countSql, queryAllSql, null,h,getRowProcessor(), pageNum, maxRow);
 		}finally{
-			close();
+			closeConnection();
 		}
 	}
 	public void refresh(){
@@ -816,19 +816,17 @@ public final class DbUtils {
      */
 	public void close() {
 		try{
-			if((connection != null && autoCommit) || autoClose){
+			if(connection != null){
 				connection.close();
 			}
 		}catch(SQLException e){
 			//Quit
 		}
 	}
-	/**
-	 * 关闭本身尚未关闭的数据库连接
-	 * @param close 是否强制关闭
-	 */
-	public void close(boolean close) {
-		close();
+	private void closeConnection(){
+		if((connection != null && autoCommit) || autoClose){
+			closeConnection();
+		}
 	}
     /**
      * Close a <code>Connection</code>, avoid closing if null.
