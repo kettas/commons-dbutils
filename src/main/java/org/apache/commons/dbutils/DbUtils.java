@@ -66,7 +66,6 @@ public final class DbUtils {
 	private static boolean CONNCETION_DATASOURCE=true;
 	private static JDBCPaginRunner run = new JDBCPaginRunner();// 分页扩展类
 	public NoClobRowProcessor rowProcessor=null;
-	
     /**
      * Default constructor.
      *
@@ -161,7 +160,7 @@ public final class DbUtils {
 		}
 		if(CONNCETION_DATASOURCE
 				&& (this.connection == null || connection.isClosed())){
-			ds.getConnection();
+			connection=ds.getConnection();
 		}
 		if(connection==null){
 			throw new SQLException("connection is null ");
@@ -1012,6 +1011,7 @@ public final class DbUtils {
     public static DataSource getDataSource() {
     	Properties properties=new Properties();
 		try{
+			System.out.println("load "+propertiesFile);
 			properties.load(DbUtils.class.getClassLoader().getResourceAsStream(propertiesFile));
 			return getDataSource(properties);
 		}catch(Exception x){
@@ -1030,6 +1030,7 @@ public final class DbUtils {
 	}
 	public static DataSource getDataSource(Properties properties)throws Exception{
 		if(properties.containsKey("jndl")){
+			System.out.println("DataSource :"+properties.getProperty("jndl"));
 			return getDataSource(properties.getProperty("jndl"));
 		}else{
 			return BasicDataSourceFactory.createDataSource(properties);
