@@ -1011,7 +1011,6 @@ public final class DbUtils {
     public static DataSource getDataSource() {
     	Properties properties=new Properties();
 		try{
-			System.out.println("load "+propertiesFile);
 			properties.load(DbUtils.class.getClassLoader().getResourceAsStream(propertiesFile));
 			return getDataSource(properties);
 		}catch(Exception x){
@@ -1273,8 +1272,8 @@ public final class DbUtils {
 	public static String getPropertiesFile() {
 		return propertiesFile;
 	}
-	public static void setPropertiesFile(String propertiesFile) {
-		DbUtils.propertiesFile = propertiesFile;
+	public static void setPropertiesFile(String _propertiesFile) {
+		propertiesFile = _propertiesFile;
 	}
 	/**
 	 * ResultSet 取出列名转换为小写
