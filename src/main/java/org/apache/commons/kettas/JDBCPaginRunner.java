@@ -455,7 +455,7 @@ public class JDBCPaginRunner {
 
 		try {
 //			if (dataBaseVersion == null) {
-				dataBaseVersion = SQLVersion.getVersionName(conn);
+				dataBaseVersion = SQLVersion.getVersionName(conn.getMetaData());
 //			}
 			if(dataBaseVersion != SQLVersion.VersionName.Sqlite){
 				stmt = this.prepareStatement(conn,sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
@@ -1023,7 +1023,7 @@ public class JDBCPaginRunner {
 	public <T> T limit(Connection conn, String sql, Object[] params,
 			ResultSetHandler<T> rsh, int start, int count) throws SQLException {
 //		if (dataBaseVersion == null) {
-			dataBaseVersion = SQLVersion.getVersionName(conn);
+			dataBaseVersion = SQLVersion.getVersionName(conn.getMetaData());
 //		}
 		if (dataBaseVersion == SQLVersion.VersionName.SqlServer) {// 采用Sqlserver分页 jdts1.2.5+sql2005测试 start,count成功
 			return limitMSsql(conn, sql, params, rsh, start, start+count);

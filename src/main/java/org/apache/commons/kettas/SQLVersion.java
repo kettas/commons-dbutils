@@ -1,6 +1,5 @@
 package org.apache.commons.kettas;
 
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,27 +14,25 @@ import org.apache.commons.dbutils.DbUtils;
 public class SQLVersion {
 	public static Map dbInfo=null;
 	
-	private static void checkDbType(java.sql.Connection connection){
-		if(dbInfo==null){
-			Map map=new HashMap();
-			try{
-				boolean type=connection.isReadOnly();
-				if(type){
-					connection.setReadOnly(false);
+	private static void checkDbType(java.sql.DatabaseMetaData dataBaseMetaData){
+		try {
+			if(dbInfo==null||!dataBaseMetaData.getURL().equalsIgnoreCase(String.valueOf(dbInfo.get("url")))){
+				Map map=new HashMap();
+				try{
+					map.put("databaseName", dataBaseMetaData.getDatabaseProductName());
+					map.put("VersionName", dataBaseMetaData.getDatabaseProductVersion());
+					map.put("driverName", dataBaseMetaData.getDriverName());
+					map.put("driverVersion", dataBaseMetaData.getDriverVersion());
+					map.put("userName",dataBaseMetaData.getUserName());
+					map.put("url", dataBaseMetaData.getURL());
+					map.put("maxConnection", dataBaseMetaData.getMaxConnections());
+				}catch (Exception e) {
+					e.printStackTrace();
 				}
-				DatabaseMetaData metaData = connection.getMetaData();
-				map.put("databaseName", metaData.getDatabaseProductName());
-				map.put("VersionName", metaData.getDatabaseProductVersion());
-				map.put("driverName", metaData.getDriverName());
-				map.put("driverVersion", metaData.getDriverVersion());
-				map.put("userName",metaData.getUserName());
-				map.put("url", metaData.getURL());
-				map.put("maxConnection", metaData.getMaxConnections());
-				connection.setReadOnly(type);
-			}catch (Exception e) {
-				e.printStackTrace();
+				dbInfo=map;
 			}
-			dbInfo=map;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 	/**
@@ -46,27 +43,11 @@ public class SQLVersion {
 	public enum VersionName {
         SqlServer,Oracle,MySql,Sqlite;
     }
-	//判断数据库的采用的类型
-	public static String getVersion(javax.sql.DataSource datasource)throws SQLException{
-		java.sql.Connection con=null;
-		try{
-			con=datasource.getConnection();
-			return getVersion(con);
-		}finally{
-			if(con!=null){
-				con.close();
-			}
-		}
-	}
 	
 	//判断数据库的采用的类型
-	public static String getVersion(java.sql.Connection connection)throws SQLException{
+	public static String getVersion(java.sql.DatabaseMetaData dataBaseMetaData)throws SQLException{
 		try{
-			if(dbInfo!=null){
-				return String.valueOf(dbInfo.get("databaseName"));
-			}else{
-				checkDbType(connection);
-			}
+			checkDbType(dataBaseMetaData);
 			return String.valueOf(dbInfo!=null?dbInfo.get("databaseName"):"");
 		}catch (NullPointerException e) {
 			e.printStackTrace();
@@ -81,8 +62,8 @@ public class SQLVersion {
 		java.sql.Connection con=null;
 		try{
 			con=datasource.getConnection();
-			return getVersionName(con);
-		}catch(Exception x){
+			return getVersionName(con.getMetaData());
+		}catch(Exception x){	
 		   x.printStackTrace();
 		}finally{
 			DbUtils.closeQuietly(con);
@@ -94,8 +75,8 @@ public class SQLVersion {
 	 * @param connection
 	 * @return SQLVersion.VersionName
 	 */
-	public static VersionName getVersionName(java.sql.Connection connection)throws java.sql.SQLException {
-		String versionNameString=getVersion(connection).toLowerCase();
+	public static VersionName getVersionName(java.sql.DatabaseMetaData dataBaseMetaData)throws java.sql.SQLException {
+		String versionNameString=getVersion(dataBaseMetaData).toLowerCase();
 		versionNameString=versionNameString==null?"":versionNameString;
 		if(versionNameString.indexOf("microsoft")>-1){
 			return SQLVersion.VersionName.SqlServer;
