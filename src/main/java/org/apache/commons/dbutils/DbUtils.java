@@ -262,34 +262,12 @@ public final class DbUtils {
 	 * @param sql 需要执行的SELECT语句
 	 * @param obj 执行SELECT语句查询时需要的参数
 	 * @return java.sql.RowSet
-	 * @throws SQLException
 	 */
 	public java.sql.ResultSet executeQuery(String sql,Object...obj) {
-		java.sql.ResultSet rs=null;
-		java.sql.PreparedStatement ps=null;
-		try {
-			getQueryConnection();
-			ps=connection.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-			for(int i=0;obj!=null&&i<obj.length;i++){
-				ps.setObject(i+1, obj[i]);
-			}
-			rs=ps.executeQuery();
-			javax.sql.rowset.CachedRowSet rowSet=new com.sun.rowset.CachedRowSetImpl();
-			rowSet.populate(rs);
-			return rowSet;
+		try{
+			return run.executeQuery(sql, obj);
 		}catch(Exception x){
 			return null;
-		} finally {
-			try{
-				if(rs!=null){
-					closeQuietly(rs);
-				}
-			}finally{
-				if(ps!=null){
-					closeQuietly(ps);
-				}
-				closeConnection();
-			}
 		}
 	}
 	/**
@@ -1029,7 +1007,6 @@ public final class DbUtils {
 	}
 	public static DataSource getDataSource(Properties properties)throws Exception{
 		if(properties.containsKey("jndl")){
-			System.out.println("DataSource :"+properties.getProperty("jndl"));
 			return getDataSource(properties.getProperty("jndl"));
 		}else{
 			return BasicDataSourceFactory.createDataSource(properties);
