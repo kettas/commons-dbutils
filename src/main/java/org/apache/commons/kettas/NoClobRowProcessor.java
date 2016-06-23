@@ -23,7 +23,6 @@ import org.apache.commons.dbutils.RowProcessor;
  * 上午12:47:59
  */
 public class NoClobRowProcessor implements RowProcessor {
-	private int maxRow=0;//最大返回行数 小于0就表示无限止
     /**
      * The default BeanProcessor instance to use if not supplied in the
      * constructor.
@@ -85,7 +84,6 @@ public class NoClobRowProcessor implements RowProcessor {
     public NoClobRowProcessor(BeanProcessor convert,int backMaxRow){
     	 super();
          this.convert = convert;
-         this.maxRow=backMaxRow;
     }
     /**
      * 支持分页功能
@@ -93,7 +91,6 @@ public class NoClobRowProcessor implements RowProcessor {
      */
     public NoClobRowProcessor(int backMaxRow){
     	 super();
-    	 this.maxRow=backMaxRow;
     	 this.convert = defaultConvert;
     }
     /**

@@ -22,6 +22,8 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.Pagin;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.RowProcessor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * JDBC分页扩展 可支持的数据库类型包括MSsql,MySql,Oracle
@@ -30,12 +32,12 @@ import org.apache.commons.dbutils.RowProcessor;
  */
 public class JDBCPaginRunner {
 	private static Long count = 0l;
-	private static SQLVersion.VersionName dataBaseVersion = null;
 	/**
 	 * Is {@link ParameterMetaData#getParameterType(int)} broken (have we tried
 	 * it yet)?
 	 */
 	private volatile boolean pmdKnownBroken = true;
+	private static Log log=LogFactory.getLog(JDBCPaginRunner.class);
 
 	/**
 	 * The DataSource to retrieve connections from.
@@ -121,6 +123,9 @@ public class JDBCPaginRunner {
 		PreparedStatement stmt = null;
 		int[] rows = null;
 		try {
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			stmt = this.prepareStatement(conn, sql);
 
 			for (int i = 0; i < params.length; i++) {
@@ -137,7 +142,6 @@ public class JDBCPaginRunner {
 
 		return rows;
 	}
-
 	/**
 	 * Execute a batch of SQL INSERT, UPDATE, or DELETE queries. The
 	 * <code>Connection</code> is retrieved from the <code>DataSource</code>
@@ -158,6 +162,9 @@ public class JDBCPaginRunner {
 		Connection conn = this.prepareConnection();
 
 		try {
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			return this.batch(conn, sql, params);
 		} finally {
 			close(conn);
@@ -455,8 +462,11 @@ public class JDBCPaginRunner {
 
 		try {
 //			if (dataBaseVersion == null) {
-				dataBaseVersion = SQLVersion.getVersionName(conn.getMetaData());
+			SQLVersion.VersionName	dataBaseVersion = SQLVersion.getVersionName(conn.getMetaData());
 //			}
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			if(dataBaseVersion != SQLVersion.VersionName.Sqlite){
 				stmt = this.prepareStatement(conn,sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
 			}else{
@@ -585,7 +595,41 @@ public class JDBCPaginRunner {
 			close(conn);
 		}
 	}
-
+	public java.sql.ResultSet executeQuery(String sql,Object...obj) 
+			throws SQLException {
+		java.sql.ResultSet rs=null;
+		java.sql.PreparedStatement ps=null;
+		Connection connection = this.prepareConnection();
+		javax.sql.rowset.CachedRowSet rowSet=new com.sun.rowset.CachedRowSetImpl();
+		try {
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
+			ps=connection.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+			for(int i=0;obj!=null&&i<obj.length;i++){
+				ps.setObject(i+1, obj[i]);
+			}
+			rs=ps.executeQuery();
+			rowSet.populate(rs);
+		}catch (SQLException e) {
+			e.printStackTrace();
+			this.rethrow(e, sql, obj);
+		} catch (Exception e) {
+			throw new SQLException("查询出错(" + e.getMessage() + ")!", e);
+		}finally {
+			try{
+				if(rs!=null){
+					close(rs);
+				}
+			}finally{
+				if(ps!=null){
+					close(ps);
+				}
+				close(connection);
+			}
+		}
+		return rowSet;
+	}
 	/**
 	 * Executes the given SELECT SQL without any replacement parameters. The
 	 * <code>Connection</code> is retrieved from the <code>DataSource</code>
@@ -703,6 +747,9 @@ public class JDBCPaginRunner {
 		int rows = 0;
 
 		try {
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			stmt = this.prepareStatement(conn, sql);
 			this.fillStatement(stmt, params);
 			rows = stmt.executeUpdate();
@@ -871,6 +918,9 @@ public class JDBCPaginRunner {
 			sql = "select * from (select row_.*,rownum rownum_  from ( " + sql
 					+ ")row_ where  rownum <= " + end + ")  where   rownum_ > "
 					+ start;
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,
 					java.sql.ResultSet.CONCUR_READ_ONLY);
 			if (params != null && params.length > 0) {
@@ -898,6 +948,9 @@ public class JDBCPaginRunner {
 		PreparedStatement ps = null;
 		try {
 			sql = sql + " limit " + (start > 0 ? (start + "," + end) : end);
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			ps = conn.prepareStatement(sql);
 			if (params != null && params.length > 0) {
 				this.fillStatement(ps, params);
@@ -933,6 +986,9 @@ public class JDBCPaginRunner {
 		PreparedStatement ps = null;
 		try {
 			sql = sql + " limit " + (start > 0 ? (start + "," + end) : end);
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,java.sql.ResultSet.CONCUR_READ_ONLY);
 			if (params != null && params.length > 0) {
 				this.fillStatement(ps, params);
@@ -977,6 +1033,9 @@ public class JDBCPaginRunner {
 		PreparedStatement ps = null;
 		try {
 			sql = sql.replaceFirst("select", "select top " + end + " ");
+			if(log.isDebugEnabled()){
+				log.debug(sql);
+			}
 			ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,
 					java.sql.ResultSet.CONCUR_READ_ONLY);
 			if (params != null && params.length > 0) {
@@ -1023,7 +1082,7 @@ public class JDBCPaginRunner {
 	public <T> T limit(Connection conn, String sql, Object[] params,
 			ResultSetHandler<T> rsh, int start, int count) throws SQLException {
 //		if (dataBaseVersion == null) {
-			dataBaseVersion = SQLVersion.getVersionName(conn.getMetaData());
+		SQLVersion.VersionName	dataBaseVersion = SQLVersion.getVersionName(conn.getMetaData());
 //		}
 		if (dataBaseVersion == SQLVersion.VersionName.SqlServer) {// 采用Sqlserver分页 jdts1.2.5+sql2005测试 start,count成功
 			return limitMSsql(conn, sql, params, rsh, start, start+count);
@@ -1069,6 +1128,9 @@ public class JDBCPaginRunner {
 		PreparedStatement pStatement = null;
 		try {
 			int maxCount = 0;
+			if(log.isDebugEnabled()){
+				log.debug(countSql);
+			}
 			// 不需要传参数
 			if (countSql.indexOf("?") == -1
 					|| (params == null || params.length < 1)) {

@@ -38,24 +38,26 @@
 
   <dependencies>
     <dependency>
-	  <groupId>commons-dbcp</groupId>
-	  <artifactId>commons-dbcp</artifactId>
-	  <version>1.4</version>
+		<groupId>commons-dbcp</groupId>
+		<artifactId>commons-dbcp</artifactId>
+		<version>1.4</version>
 	</dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>3.8.1</version>
+		<scope>test</scope>
     </dependency>
+	<dependency>
+		<groupId>commons-logging</groupId>
+		<artifactId>commons-logging</artifactId>
+		<version>1.2</version>
+	</dependency>
   </dependencies>
 
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
-    <commons.componentid>dbutils</commons.componentid>
-    <commons.release.version>1.6</commons.release.version>
-    <commons.rc.version>RC1</commons.rc.version>
     <commons.jira.id>DBUTILS</commons.jira.id>
     <commons.jira.pid>12310470</commons.jira.pid>
   </properties> 
