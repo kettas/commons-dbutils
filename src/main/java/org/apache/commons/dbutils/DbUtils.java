@@ -84,7 +84,7 @@ public final class DbUtils {
     /**
 	 * 处理行
 	 */
-	private ResultSetHandler getResultBeanHandler(Class targetClass){
+	private ResultSetHandler getResultBeanHandler(final Class targetClass){
 		if(targetClass == String.class
 				||targetClass == Integer.class
 				||targetClass == Double.class
@@ -106,7 +106,7 @@ public final class DbUtils {
 		return new BeanHandler(targetClass);
 	}
 	
-	private ResultSetHandler getResultBeanListHandler(Class targetClass){
+	private ResultSetHandler getResultBeanListHandler(final Class targetClass){
 		if(targetClass == String.class
 				||targetClass == Integer.class
 				||targetClass == Double.class
