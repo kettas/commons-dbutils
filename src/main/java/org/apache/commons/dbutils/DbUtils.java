@@ -83,7 +83,7 @@ public final class DbUtils {
     	ds=dataSource;
     	CONNCETION_DATASOURCE=true;
     }
-    private static final class ScalarHandler {
+    private static class ScalarHandler {
     	private static String trimAllWhitespace(String str) {
     		if (str==null||str.trim().length()<1) {
     			return str;
