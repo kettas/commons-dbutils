@@ -245,9 +245,11 @@ public final class DbUtils {
 	 */
 	public java.sql.ResultSet executeQuery(String sql,Object...obj) {
 		try{
-			return run.executeQuery(sql, obj);
+			return run.executeQuery(getQueryConnection(),sql, obj);
 		}catch(Exception x){
 			return null;
+		}finally{
+			closeConnection();
 		}
 	}
 	/**

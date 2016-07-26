@@ -595,12 +595,10 @@ public class JDBCPaginRunner {
 			close(conn);
 		}
 	}
-	public java.sql.ResultSet executeQuery(String sql,Object...obj) 
+	public java.sql.ResultSet executeQuery(Connection connection,String sql,Object...obj) 
 			throws SQLException {
 		java.sql.ResultSet rs=null;
 		java.sql.PreparedStatement ps=null;
-		Connection connection = this.prepareConnection();
-		javax.sql.rowset.CachedRowSet rowSet=new com.sun.rowset.CachedRowSetImpl();
 		try {
 			if(log.isDebugEnabled()){
 				log.debug(sql);
@@ -610,7 +608,9 @@ public class JDBCPaginRunner {
 				ps.setObject(i+1, obj[i]);
 			}
 			rs=ps.executeQuery();
+			javax.sql.rowset.CachedRowSet rowSet=new com.sun.rowset.CachedRowSetImpl();
 			rowSet.populate(rs);
+			return rowSet;
 		}catch (SQLException e) {
 			e.printStackTrace();
 			this.rethrow(e, sql, obj);
@@ -625,10 +625,9 @@ public class JDBCPaginRunner {
 				if(ps!=null){
 					close(ps);
 				}
-				close(connection);
 			}
 		}
-		return rowSet;
+		return null;
 	}
 	/**
 	 * Executes the given SELECT SQL without any replacement parameters. The
